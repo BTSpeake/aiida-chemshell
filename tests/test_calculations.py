@@ -4,7 +4,7 @@ from aiida.engine import run
 from aiida.orm import Dict
 from numpy.linalg import norm
 
-from aiida_chemshell.calculations import ChemShellCalculation
+from aiida_chemshell.calculations.base import ChemShellCalculation
 
 
 def test_sp_calculation_nwchem_hf(chemsh_code, get_test_data_file):

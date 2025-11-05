@@ -1,6 +1,6 @@
 """Tests for ChemShell input script generation based on various input parameters."""
 
-from aiida_chemshell.calculations import ChemShellCalculation
+from aiida_chemshell.calculations.base import ChemShellCalculation
 
 
 def test_defaults(generate_calcjob):
