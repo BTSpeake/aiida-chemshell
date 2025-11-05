@@ -28,10 +28,10 @@ requires-python = ">=3.10"
 Source = "https://github.com/stfc/aiida-chemshell"
 
 [project.entry-points."aiida.calculations"]
-"chemshell" = "aiida_chemshell.calculations:ChemShellCalculation"
+"chemshell" = "aiida_chemshell.calculations.base:ChemShellCalculation"
 
 [project.entry-points."aiida.parsers"]
-"chemshell" = "aiida_chemshell.parsers:ChemShellParser"
+"chemshell" = "aiida_chemshell.parsers.base:ChemShellParser"
 
 [tool.setuptools.packages.find]
 where = ["src",]
