@@ -8,7 +8,7 @@ from aiida.engine import ExitCode
 from aiida.orm import ArrayData, Float, SinglefileData
 from aiida.parsers.parser import Parser
 
-from aiida_chemshell.calculations import ChemShellCalculation
+from aiida_chemshell.calculations.base import ChemShellCalculation
 
 
 class ChemShellParser(Parser):
