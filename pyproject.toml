@@ -32,6 +32,7 @@ Source = "https://github.com/stfc/aiida-chemshell"
 
 [project.entry-points."aiida.parsers"]
 "chemshell" = "aiida_chemshell.parsers.base:ChemShellParser"
+"chemshell.split_traj" = "aiida_chemshell.parsers.split_trajectory:SplitTrajectoryParser"
 
 [tool.setuptools.packages.find]
 where = ["src",]
