@@ -1,5 +1,6 @@
 """PyTest configurations."""
 
+import os
 import pathlib
 
 import pytest
@@ -7,7 +8,7 @@ from aiida.common.folders import Folder
 from aiida.engine import CalcJob
 from aiida.engine.utils import instantiate_process
 from aiida.manage.manager import get_manager
-from aiida.orm import Dict, SinglefileData, StructureData
+from aiida.orm import Dict, InstalledCode, SinglefileData, StructureData
 
 pytest_plugins = "aiida.tools.pytest_fixtures"
 
@@ -31,9 +32,16 @@ def get_test_data_file(get_data_filepath):
 @pytest.fixture
 def chemsh_code(aiida_code_installed):
     """Return a ChemShell AiiDA code instance."""
-    return aiida_code_installed(
-        filepath_executable="chemsh", default_calc_job_plugin="chemshell"
-    )
+
+    def factory(plugin: str = "chemshell") -> InstalledCode:
+        return aiida_code_installed(
+            filepath_executable=os.environ.get("CHEMSHELL_BIN", "chemsh"),
+            default_calc_job_plugin="chemshell",
+            prepend_text=os.environ.get("CHEMSHELL_PREPEND_TEXT", ""),
+            append_text=os.environ.get("CHEMSHELL_APPEND_TEXT", ""),
+        )
+
+    return factory
 
 
 @pytest.fixture
@@ -66,7 +74,7 @@ def generate_inputs(chemsh_code, get_test_data_file):
             structure = get_test_data_file(structure_fname)
         else:
             structure = structure_fname
-        inputs = {"code": chemsh_code, "structure": structure}
+        inputs = {"code": chemsh_code(), "structure": structure}
         if sp:
             inputs["calculation_parameters"] = Dict(sp)
         if qm:

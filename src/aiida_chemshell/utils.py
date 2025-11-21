@@ -33,7 +33,8 @@ class ChemShellMMTheory(Enum):
     NAMD = auto()
 
 
-def chemsh_punch_to_structure_data(data: str) -> StructureData:
+# Not covered by test suite as this function is not yet used by production code
+def chemsh_punch_to_structure_data(data: str) -> StructureData:  # pragma: no cover
     """Create a AiiDA StructureData object from a ChemShell punch file."""
     structure = StructureData(pbc=[False, False, False])
 
@@ -55,3 +56,32 @@ def chemsh_punch_to_structure_data(data: str) -> StructureData:
         i += 1
 
     return structure
+
+
+def generate_parameter_string(params: dict) -> str:
+    """
+    Generate a input string for the ChemShell script from a dict.
+
+    Take a dictionary of parameters and generate a comma separated string
+    suitable for inclusion in a function call in the ChemShell input script.
+    e.g. 'key1=value1, key2=value2'
+
+    Parameters
+    ----------
+    params : dict
+        Dictionary of parameters to convert.
+
+    Returns
+    -------
+    s : str
+        Comma separated string of parameters.
+    """
+    s = ""
+    for key in params:
+        if key == "theory":
+            continue
+        if isinstance(params[key], str):
+            s += f"{key}='{params[key]}', "
+        else:
+            s += f"{key}={params[key]}, "
+    return s.rstrip(", ")
