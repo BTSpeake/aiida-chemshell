@@ -31,6 +31,7 @@ class ChemShellCalculation(CalcJob):
     FILE_STDOUT = "output.log"
     FILE_DLFIND = "_dl_find.cjson"
     FILE_TMP_STRUCTURE = "input_structure.xyz"
+    FILE_TMP_STRUCTURE2 = "input_structure_2.xyz"
     FILE_RESULTS = "result.json"
     FILE_TRJPTH = "path.xyz"
     FILE_TRJFRC = "path_force.xyz"
@@ -64,6 +65,18 @@ class ChemShellCalculation(CalcJob):
             help=(
                 "An index to extract a specific structure if the input 'structure' "
                 "contains multiple structures, such as if it is a TrajectoryData node."
+            ),
+        )
+        spec.input(
+            "structure2",
+            valid_type=(SinglefileData, StructureData),
+            validator=cls.validate_structure_file,
+            required=False,
+            help=(
+                "An additional input structure for the ChemShell calculation either"
+                "contained within an '.xyz', '.pun' or '.cjson' file or as a "
+                "StructureData instance. This is used in jobs such as NEB "
+                "optimisations as the final structure."
             ),
         )
 
@@ -784,6 +797,15 @@ class ChemShellCalculation(CalcJob):
                 f"structure = Fragment(coords='{self.inputs.structure.filename:s}')\n"
             )
 
+        # Create second fragment object if requested
+        if "structure2" in self.inputs:
+            if isinstance(self.inputs.structure2, SinglefileData):
+                fname = self.inputs.structure2.filename
+            else:
+                fname = ChemShellCalculation.FILE_TMP_STRUCTURE2
+            print(fname)
+            script += f"frg2 = Fragment(coords='{fname:s}')\n"
+
         ## Setup Theory objects
 
         if "qm_parameters" in self.inputs:
@@ -857,6 +879,8 @@ class ChemShellCalculation(CalcJob):
             # Run a geometry optimisation using DL_FIND
             script += "from chemsh import Opt\n"
             opt_str = f"job = Opt(theory={theory_str:s}"
+            if "structure2" in self.inputs:
+                opt_str += ", " + "frag2=frg2"
             for key in self.inputs.optimisation_parameters.keys():
                 if isinstance(self.inputs.optimisation_parameters.get(key), str):
                     opt_str += ", " + key + "='"
@@ -950,8 +974,22 @@ class ChemShellCalculation(CalcJob):
                     self.inputs.structure.uuid,
                     self.inputs.structure.filename,
                     self.inputs.structure.filename,
-                )
+                ),
             )
+
+        # Copy data for second input fragment if required
+        if "structure2" in self.inputs:
+            if isinstance(self.inputs.structure2, StructureData):
+                with folder.open(ChemShellCalculation.FILE_TMP_STRUCTURE, "wb") as f:
+                    f.write(self.inputs.structure2._prepare_xyz()[0])
+            else:
+                calc_info.local_copy_list.append(
+                    (
+                        self.inputs.structure2.uuid,
+                        self.inputs.structure2.filename,
+                        self.inputs.structure2.filename,
+                    ),
+                )
 
         # If running with an MM theory a force field file is required and copied
         if "force_field_file" in self.inputs:
