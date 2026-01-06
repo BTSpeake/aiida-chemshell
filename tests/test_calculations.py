@@ -238,6 +238,30 @@ def test_vibrational_calculation(chemsh_code, get_test_data_file):
     assert results.get("vibrational_energies").get("Entropy / J/mol/K") == 0.01313
 
 
+def test_neb_calculation(chemsh_code, get_test_data_file):
+    """QM test for neb calculation and second structure input."""
+    code = chemsh_code()
+    builder = code.get_builder()
+    builder.structure = get_test_data_file("h2o_dimer.cjson")
+    builder.structure2 = get_test_data_file("h2o_dimer_2.cjson")
+    builder.qm_parameters = Dict({"theory": "PySCF", "method": "DFT", "basis": "3-21G"})
+    builder.optimisation_parameters = Dict({"neb": "frozen"})
+
+    results, node = run.get_node(builder)
+
+    assert node.is_finished_ok, "CalcJob failed for `test_neb_calculationF`"
+
+    ofiles = results.get("retrieved").list_object_names()
+    assert ChemShellCalculation.FILE_STDOUT in ofiles
+    assert ChemShellCalculation.FILE_DLFIND in ofiles
+    assert ChemShellCalculation.FILE_RESULTS in ofiles
+
+    eref = -150.28414107716
+    assert abs(results.get("energy") - eref) < 1e-8
+
+    return
+
+
 # def test_opt_calculation_qmmm(chemsh_code, get_test_data_file):
 #     """QM/MM geometry optimisation test."""
 #     code = chemsh_code()
