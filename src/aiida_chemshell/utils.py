@@ -2,7 +2,7 @@
 
 from enum import Enum, auto
 
-from aiida.orm import StructureData
+from aiida.orm import SinglefileData, StructureData
 
 
 class ChemShellQMTheory(Enum):
@@ -85,3 +85,22 @@ def generate_parameter_string(params: dict) -> str:
         else:
             s += f"{key}={params[key]}, "
     return s.rstrip(", ")
+
+
+def xyz_file_validator(value: SinglefileData) -> str | None:
+    """Check if a file is a valid XYZ file."""
+    contents = value.get_content(mode="r").splitlines()
+    try:
+        natoms = int(contents[0].strip())
+    except ValueError:
+        return (
+            "The first line of the XYZ file must be an integer"
+            "representing the number of atoms."
+        )
+    else:
+        if natoms != len(contents) - 2:
+            return (
+                f"The number of atoms specified ({natoms}) does not"
+                f"match the number of atom lines ({len(contents) - 2})."
+            )
+    return None
