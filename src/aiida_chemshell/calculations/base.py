@@ -24,6 +24,8 @@ class ChemShellCalculation(CalcJob):
     FILE_TMP_STRUCTURE = "input_structure.xyz"
     FILE_TMP_STRUCTURE2 = "input_structure_2.xyz"
     FILE_RESULTS = "result.json"
+    FILE_TRJPTH = "path.xyz"
+    FILE_TRJFRC = "path_force.xyz"
 
     @classmethod
     def define(cls, spec: CalcJobProcessSpec) -> None:
@@ -172,6 +174,21 @@ class ChemShellCalculation(CalcJob):
             return None
 
         spec.inputs.validator = inputs_validator_wrapper
+        spec.output(
+            "trajectory_path",
+            valid_type=SinglefileData,
+            required=False,
+            help="XYZ trajectory file for the geometry optimisation",
+        )
+        spec.output(
+            "trajectory_force",
+            valid_type=SinglefileData,
+            required=False,
+            help=(
+                "XYZ trajectory containing forces at each step of a geometry "
+                "optimisation"
+            ),
+        )
 
         ## Metadata
         spec.inputs["metadata"]["options"]["resources"].default = {
@@ -340,6 +357,7 @@ class ChemShellCalculation(CalcJob):
             "delta",
             "tsrelative",
             "thermal",
+            "save_path",
         )
 
     @classmethod
@@ -909,5 +927,8 @@ class ChemShellCalculation(CalcJob):
         # file containing the optimised structure
         if "optimisation_parameters" in self.inputs:
             calc_info.retrieve_list.append(ChemShellCalculation.FILE_DLFIND)
+            if self.inputs.optimisation_parameters.get("save_path", False):
+                calc_info.retrieve_list.append(ChemShellCalculation.FILE_TRJPTH)
+                calc_info.retrieve_list.append(ChemShellCalculation.FILE_TRJFRC)
 
         return calc_info
