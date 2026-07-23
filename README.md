@@ -5,9 +5,10 @@
 [![Pipeline Status](https://github.com/stfc/aiida-chemshell/actions/workflows/ci-testing.yml/badge.svg?branch=main)](https://github.com/stfc/aiida-chemshell/actions)
 [![Coverage Status]( https://coveralls.io/repos/github/stfc/aiida-chemshell/badge.svg?branch=main)](https://coveralls.io/github/stfc/aiida-chemshell?branch=main)
 
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.18392782.svg)](https://doi.org/10.5281/zenodo.18392782)
+[![DOI](https://img.shields.io/badge/DOI-10.5281%2Fzenodo.18392782-blue.svg)](https://doi.org/10.5281/zenodo.18392782)
 
-# aiida-chemshell
+
+# AiiDA ChemShell
 
 An [AiiDA](https://www.aiida.net) plugin for the [ChemShell](https://chemshell.org/) multiscale 
 computational chemistry software package. 
@@ -52,6 +53,13 @@ verdi code create core.code.installed --config chemshell.yml -n
 ```
 
 If successful this will have created a code with the label `chemsh` which can then be used to run ChemShell jobs within the AiiDA workflow. 
+
+### ChemShell with MPI
+
+It is important to note that the configuration of an MPI enabled ChemShell code differs slightly depending on whether the code instance uses 
+the `chemsh` or `chemsh.x` executable. If you have a parallel (MPI enabled) build of ChemShell but are using the `chemsh` wrapper executable
+please set `with_mpi: false` as the underlying plugin will handle how to call the mpi runtime. If you are calling the `chemsh.x` executable
+directly then `with_mpi: true` is required to run parallel jobs. 
 
 ## Examples 
 
