@@ -974,11 +974,12 @@ class ChemShellCalculation(CalcJob):
         # Setup the calculation information object
         calc_info = CalcInfo()
         calc_info.codes_info = [code_info]
-        calc_info.retrieve_temporary_list = []
+        calc_info.retrieve_temporary_list = [
+            ChemShellCalculation.FILE_RESULTS,
+        ]
         calc_info.provenance_exclude_list = []
         calc_info.retrieve_list = [
             ChemShellCalculation.FILE_STDOUT,
-            ChemShellCalculation.FILE_RESULTS,
         ]
         calc_info.local_copy_list = []
 
@@ -1033,12 +1034,14 @@ class ChemShellCalculation(CalcJob):
                 "frozen",
                 "perpendicular",
             ]:
-                calc_info.retrieve_list.append(ChemShellCalculation.FILE_DLFIND)
+                calc_info.retrieve_temporary_list.append(
+                    ChemShellCalculation.FILE_DLFIND
+                )
             if self.inputs.optimisation_parameters.get("save_path", False):
-                calc_info.retrieve_list.append(
+                calc_info.retrieve_temporary_list.append(
                     "_dl_find/" + ChemShellCalculation.FILE_TRJPTH
                 )
-                calc_info.retrieve_list.append(
+                calc_info.retrieve_temporary_list.append(
                     "_dl_find/" + ChemShellCalculation.FILE_TRJFRC
                 )
             if self.inputs.optimisation_parameters.get("neb", "no") in [
